@@ -1,3 +1,2 @@
 #!/usr/bin/env sh
-flask --app compressor init-db
 gunicorn -c 'gunicorn.conf.py' 'compressor:create_app()'
