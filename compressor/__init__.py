@@ -1,10 +1,18 @@
 from flask import Flask, redirect, render_template, request, url_for
+from hashlib import sha256
 from pathlib import Path
+from .persistence import url_store
 from urllib.parse import urlparse
 
-from hashlib import sha256
 
-shortened_urls = {}
+def normalise_url(url: str) -> str:
+    parsed_url = urlparse(request.form["url"])
+    if parsed_url.scheme not in {"http", "https"}:
+        parsed_url = parsed_url._replace(scheme="https")
+
+    url_str = parsed_url.geturl()
+    return url_str
+
 
 def create_app(test_config=None) -> Flask:
     app = Flask(
@@ -30,28 +38,15 @@ def create_app(test_config=None) -> Flask:
     
     @app.route("/<token>", methods=["GET", "PUT", "POST", "DELETE"])
     def redirect_to_full_url(token):
-        conn = db.sqlite_connection()
-        if token not in shortened_urls:
-            res = conn.execute("SELECT token, url FROM tokens WHERE token = ?", (token,))
-            row = res.fetchone()
-            if row is None:
-                return f"Invalid token {token}", 404
-            shortened_urls[token] = urlparse(row["url"])
-
-        return redirect(shortened_urls[token].geturl())
+        full_url = url_store().get(token)
+        return redirect(full_url)
 
     @app.route("/", methods=["POST"])
     def compress():
-        url = urlparse(request.form["url"])
-        if url.scheme not in {"http", "https"}:
-            url = url._replace(scheme="https")
-
-        url_str = url.geturl()
+        url_str = normalise_url(request.form["url"])
         compressed_token = sha256(url_str.encode()).hexdigest()[:6]
-        shortened_urls[compressed_token] = url
-        conn = db.sqlite_connection()
-        conn.execute("INSERT INTO tokens (token, url) VALUES (?, ?)", (compressed_token, url_str))
-        conn.commit()
+
+        url_store().store(compressed_token, url_str)
 
         compressed = url_for("redirect_to_full_url", token=compressed_token, _external=True)
         return render_template("response.html", url=compressed)

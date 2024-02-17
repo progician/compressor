@@ -1,7 +1,7 @@
 import pytest
 
 from bs4 import BeautifulSoup, Tag
-from compressor import db, create_app, shortened_urls
+from compressor import db, create_app, url_store
 from dataclasses import dataclass
 from flask import Flask
 from flask.testing import FlaskClient
@@ -64,8 +64,8 @@ def test_url_shortening_is_persistent(compressor_app: CompressorApp) -> None:
     arbitrary_url = "https://www.google.com"
     short_url = compressor_app.shorten(arbitrary_url)
 
-    global shortened_urls
-    shortened_urls.clear()
+    with compressor_app.app.app_context():
+        url_store().drop_cache()
 
     assert compressor_app.redirect(short_url) == arbitrary_url
 
