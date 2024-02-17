@@ -2,7 +2,7 @@ from . import db
 
 from dataclasses import dataclass, field
 from flask import g
-from sqlite3 import Connection
+from sqlite3 import Connection, IntegrityError
 
 class InvalidToken(ValueError):
     def __init__(self, token: str):
@@ -32,8 +32,12 @@ class UrlStore:
 
     def store(self, token: str, url: str) -> None:
         cursor = self.db.cursor()
-        cursor.execute('INSERT INTO tokens (token, url) VALUES (?, ?)', (token, url))
-        self.db.commit()
+        try:
+            cursor.execute('INSERT INTO tokens (token, url) VALUES (?, ?)', (token, url))
+            self.db.commit()
+        except IntegrityError:
+            pass
+
         self.cache[token] = url
 
 
