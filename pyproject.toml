@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compressor"
+version = "0.1.0"
+description = "URL shortener app"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask~=3.0",
+    "pytest~=8.0",
+    "bs4~=0.0.2",
+]
