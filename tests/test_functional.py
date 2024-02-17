@@ -1,7 +1,7 @@
 import pytest
 
 from compressor import db
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from compressor import create_app, shortened_urls
 from flask import Flask
 from flask.testing import FlaskClient
@@ -32,7 +32,7 @@ def test_shorten_and_redirect_to_url(client: FlaskClient):
 
     page = BeautifulSoup(response.data.decode("utf-8"), "html.parser")
     short_url_anchor = page.find("a", id="short-url")
-    assert short_url_anchor is not None
+    assert isinstance(short_url_anchor, Tag)
 
     short_url = short_url_anchor.attrs["href"]
 
@@ -53,7 +53,7 @@ def test_url_shortening_is_persistent(client: FlaskClient):
 
     page = BeautifulSoup(response.data.decode("utf-8"), "html.parser")
     short_url_anchor = page.find("a", id="short-url")
-    assert short_url_anchor is not None
+    assert isinstance(short_url_anchor, Tag)
 
     short_url = short_url_anchor.attrs["href"]
 

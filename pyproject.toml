@@ -10,6 +10,15 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "flask~=3.0",
+    "beautifulsoup4~=4.12",
+]
+
+[tool.setuptools.packages.find]
+exclude = ["instance"]
+
+[project.optional-dependencies]
+dev = [
     "pytest~=8.0",
-    "bs4~=0.0.2",
+    "pytest-mypy~=0.10.3",
+    "types-beautifulsoup4~=4.12",
 ]
