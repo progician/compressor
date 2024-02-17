@@ -54,17 +54,23 @@ def compressor_app(app: Flask, client: FlaskClient) -> CompressorApp:
 
 
 def test_shorten_and_redirect_to_url(compressor_app: CompressorApp) -> None:
-    url = "https://www.google.com"
-    short_url = compressor_app.shorten(url)
-    assert url not in short_url
-    assert compressor_app.redirect(short_url) == url
+    arbitrary_url = "https://www.google.com"
+    short_url = compressor_app.shorten(arbitrary_url)
+    assert arbitrary_url not in short_url
+    assert compressor_app.redirect(short_url) == arbitrary_url
 
 
 def test_url_shortening_is_persistent(compressor_app: CompressorApp) -> None:
-    url = "https://www.google.com"
-    short_url = compressor_app.shorten(url)
+    arbitrary_url = "https://www.google.com"
+    short_url = compressor_app.shorten(arbitrary_url)
 
     global shortened_urls
     shortened_urls.clear()
 
-    assert compressor_app.redirect(short_url) == url
+    assert compressor_app.redirect(short_url) == arbitrary_url
+
+
+def test_shorten_the_same_url_twice_is_idempotent(compressor_app: CompressorApp) -> None:
+    arbitrary_url = "https://www.xy.com"
+    short_url = compressor_app.shorten(arbitrary_url)
+    assert short_url == compressor_app.shorten(arbitrary_url)
