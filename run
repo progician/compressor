@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+gunicorn -c 'gunicorn.conf.py' 'compressor:create_app()'

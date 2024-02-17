@@ -14,7 +14,10 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-exclude = ["instance"]
+exclude = [
+    "instance",
+    "tests",
+]
 
 [project.optional-dependencies]
 dev = [
