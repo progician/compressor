@@ -47,6 +47,9 @@ class CompressorApp:
         assert response.status_code == 302
         return response.headers["Location"]
 
+    def list_of_urls(self) -> dict[str, str]:
+        return {}
+
 
 @pytest.fixture
 def compressor_app(app: Flask, client: FlaskClient) -> CompressorApp:
@@ -74,3 +77,17 @@ def test_shorten_the_same_url_twice_is_idempotent(compressor_app: CompressorApp)
     arbitrary_url = "https://www.xy.com"
     short_url = compressor_app.shorten(arbitrary_url)
     assert short_url == compressor_app.shorten(arbitrary_url)
+
+
+def test_listing_of_existing_urls(compressor_app: CompressorApp) -> None:
+    list_of_urls_to_shorten = [
+        "https://www.google.com",
+        "https://www.facebook.com",
+        "https://www.twitter.com",
+    ]
+    shortened_urls = {
+        url: compressor_app.shorten(url)
+        for url in list_of_urls_to_shorten
+    }
+
+    assert compressor_app.list_of_urls() == shortened_urls
