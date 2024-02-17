@@ -48,7 +48,16 @@ class CompressorApp:
         return response.headers["Location"]
 
     def list_of_urls(self) -> dict[str, str]:
-        return {}
+        response = self.client.get("/urls/")
+        assert response.status_code == 200
+
+        page = BeautifulSoup(response.data.decode("utf-8"), "html.parser")
+        list_items = page.find_all("li", class_="url-item")
+        result = {
+            item.find("a", class_="original-url").attrs["href"] : item.find("a", class_="short-url").attrs["href"]
+            for item in list_items
+        }
+        return result
 
 
 @pytest.fixture

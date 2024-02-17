@@ -1,0 +1,12 @@
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <ul>
+        {% for url, shortened_url in urls %}
+            <li class="url-item"><a class="original-url" href="{{ url }}">{{ url }}</a>: <a class="short-url" href="{{ shortened_url }}">{{ shortened_url }}</a></li>
+        {% endfor %}
+    </ul>
+</body>

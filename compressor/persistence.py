@@ -2,11 +2,16 @@ from . import db
 
 from dataclasses import dataclass, field
 from flask import g
+from hashlib import sha256
 from sqlite3 import Connection, IntegrityError
 
 class InvalidToken(ValueError):
     def __init__(self, token: str):
         super().__init__(f"Invalid token {token}")
+
+
+def token_for_url(url: str) -> str:
+    return sha256(url.encode("utf-8")).hexdigest()[:6]
 
 
 @dataclass
@@ -29,8 +34,10 @@ class UrlStore:
         url = result[0]
         self.cache[token] = url
         return url
+    
+    def store(self, url: str) -> str:
+        token = token_for_url(url)
 
-    def store(self, token: str, url: str) -> None:
         cursor = self.db.cursor()
         try:
             cursor.execute('INSERT INTO tokens (token, url) VALUES (?, ?)', (token, url))
@@ -39,6 +46,16 @@ class UrlStore:
             pass
 
         self.cache[token] = url
+        return token
+    
+    def all(self) -> dict[str, str]:
+        cursor = self.db.cursor()
+        cursor.execute('SELECT token, url FROM tokens')
+        self.cache.update({
+            token: url
+            for token, url in cursor.fetchall()
+        })
+        return self.cache
 
 
 def url_store() -> UrlStore:
