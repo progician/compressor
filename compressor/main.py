@@ -1,5 +1,13 @@
 from .persistence import url_store
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    Response,
+    url_for,
+)
 from urllib.parse import urlparse
 
 
@@ -16,20 +24,23 @@ bp = Blueprint('main', __name__)
 
 
 @bp.route("/", methods=["GET"])
-def home():
-    return render_template("index.html")
+def home() -> Response:
+    resp = make_response(render_template("index.html"))
+    return resp
 
 
 @bp.route("/<token>", methods=["GET", "PUT", "POST", "DELETE"])
-def redirect_to_full_url(token):
+def redirect_to_full_url(token) -> Response:
     full_url = url_store().get(token)
-    return redirect(full_url)
+    resp = make_response(redirect(full_url))
+    return resp
 
 
 @bp.route("/", methods=["POST"])
-def compress():
+def compress() -> Response:
     url_str = normalise_url(request.form["url"])
     token = url_store().store(url_str)
 
     compressed = url_for("main.redirect_to_full_url", token=token, _external=True)
-    return render_template("response.html", url=compressed)
+    resp = make_response(render_template("response.html", url=compressed))
+    return resp

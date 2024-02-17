@@ -18,25 +18,25 @@ def sqlite_connection() -> Connection:
     return g.db
 
 
-def close_db(e=None):
+def close_db(e=None) -> None:
     db = g.pop("db", None)
 
     if db is not None:
         db.close()
 
 
-def init_db():
+def init_db() -> None:
     db = sqlite_connection()
     with current_app.open_resource("schema.sql") as f:
-        db.executescript(f.read().decode("utf-8"))
+        db.executescript(f.read().decode("utf-8"))  # type: ignore
 
 
 @click.command("init-db")
-def init_db_command():
+def init_db_command() -> None:
     init_db()
     click.echo("Initialized the database.")
 
 
-def init_app(app):
+def init_app(app) -> None:
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
