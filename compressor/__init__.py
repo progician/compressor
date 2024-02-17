@@ -18,7 +18,7 @@ def create_app(test_config=None) -> Flask:
         DATABASE=(Path(app.instance_path)/"compressor.db").as_posix(),
     )
     if test_config is None:
-        app.config.from_pyfile("config.py", silent=True)
+        app.config.from_prefixed_env(prefix="COMPRESSOR")
     else:
         app.config.from_mapping(test_config)
 
