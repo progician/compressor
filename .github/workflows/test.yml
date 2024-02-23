@@ -15,4 +15,4 @@ jobs:
         pip install -e '.[dev]'
     - name: Run tests
       run: |
-        python -m pytest
+        python -m pytest --mypy
